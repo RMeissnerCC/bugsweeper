@@ -6,6 +6,8 @@ from PyQt5.QtGui import QImage, QColor, QPainter, QPalette, QBrush, QPen, QPixma
 from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QGridLayout, \
     QApplication
 
+from images.utils import measure
+
 image_folder = "src/images"
 IMG_BOMB = QImage(f"{image_folder}/bug.png")
 IMG_FLAG = QImage(f"{image_folder}/flag.png")
@@ -260,7 +262,18 @@ class MainWindow(QMainWindow):
                         widget.click()
                 break
 
+    @measure
     def get_surrounding(self, x, y):
+        positions = []
+
+        for xi in range(max(0, x - 1), min(x + 2, self.board_size)):
+            for yi in range(max(0, y - 1), min(y + 2, self.board_size)):
+                positions.append(self.grid.itemAtPosition(yi, xi).widget())
+
+        return positions
+
+    @measure
+    def get_surrounding_old(self, x, y):
         positions = []
 
         for xi in range(max(0, x - 1), min(x + 2, self.board_size)):
