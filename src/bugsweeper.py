@@ -261,8 +261,8 @@ class MainWindow(QMainWindow):
 
     @measure
     def get_surrounding(self, x, y):
-        return [self.grid.itemAtPosition(yi, xi).widget() for xi in self.get_surrounding_range(x) for yi in
-                self.get_surrounding_range(y)]
+        return [self.grid.itemAtPosition(yi, xi).widget() for xi, yi in
+                itertools.product(self.get_surrounding_range(x), self.get_surrounding_range(y))]
 
     @measure
     def get_surrounding_2d(self, x, y):
