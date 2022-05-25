@@ -210,6 +210,12 @@ class MainWindow(QMainWindow):
                 w.expandable.connect(self.expand_reveal)
                 w.ohno.connect(self.game_over)
 
+    def get_adjacency_n(self, x, y):
+        surrounding_positions = self.get_surrounding(x, y)
+        n_mines = sum(1 if w.is_mine else 0 for w in surrounding_positions)
+
+        return n_mines
+
     def reset_map(self):
         # Clear all mine positions
         for x in range(0, self.board_size):
@@ -228,19 +234,15 @@ class MainWindow(QMainWindow):
                 widget.is_mine = True
                 positions.append((x, y))
 
-        def get_adjacency_n(x, y):
-            surrounding_positions = self.get_surrounding(x, y)
-            n_mines = sum(1 if w.is_mine else 0 for w in surrounding_positions)
-
-            return n_mines
-
         # Add adjacencies to the positions
         for x in range(0, self.board_size):
             for y in range(0, self.board_size):
                 widget = self.grid.itemAtPosition(y, x).widget()
-                widget.adjacent_n = get_adjacency_n(x, y)
+                widget.adjacent_n = self.get_adjacency_n(x, y)
 
-        # Place starting marker
+        self.markers_placed(positions)
+
+    def markers_placed(self, positions):
         while True:
             x, y = random.randint(0, self.board_size - 1), random.randint(
                 0, self.board_size - 1
