@@ -6,10 +6,11 @@ from PyQt5.QtGui import QImage, QColor, QPainter, QPalette, QBrush, QPen, QPixma
 from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QGridLayout, \
     QApplication
 
-IMG_BOMB = QImage("./images/bug.png")
-IMG_FLAG = QImage("./images/flag.png")
-IMG_START = QImage("./images/rocket.png")
-IMG_CLOCK = QImage("./images/clock-select.png")
+image_folder = "src/images"
+IMG_BOMB = QImage(f"{image_folder}/bug.png")
+IMG_FLAG = QImage(f"{image_folder}/flag.png")
+IMG_START = QImage(f"{image_folder}/rocket.png")
+IMG_CLOCK = QImage(f"{image_folder}/clock-select.png")
 
 NUM_COLORS = {
     1: QColor("#f44336"),
@@ -30,10 +31,10 @@ STATUS_FAILED = 2
 STATUS_SUCCESS = 3
 
 STATUS_ICONS = {
-    STATUS_READY: "./images/plus.png",
-    STATUS_PLAYING: "./images/smiley.png",
-    STATUS_FAILED: "./images/cross.png",
-    STATUS_SUCCESS: "./images/smiley-lol.png",
+    STATUS_READY: f"{image_folder}/plus.png",
+    STATUS_PLAYING: f"{image_folder}/smiley.png",
+    STATUS_FAILED: f"{image_folder}/cross.png",
+    STATUS_SUCCESS: f"{image_folder}/smiley-lol.png",
 }
 
 
@@ -162,7 +163,7 @@ class MainWindow(QMainWindow):
         self.button = QPushButton()
         self.button.setFixedSize(QSize(32, 32))
         self.button.setIconSize(QSize(32, 32))
-        self.button.setIcon(QIcon("./images/smiley.png"))
+        self.button.setIcon(QIcon(f"{image_folder}/smiley.png"))
         self.button.setFlat(True)
 
         self.button.pressed.connect(self.button_pressed)
