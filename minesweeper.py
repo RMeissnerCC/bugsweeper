@@ -1,7 +1,7 @@
 import random
 import time
 
-from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage, QColor, QPainter, QPalette, QBrush, QPen, QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QGridLayout, \
     QApplication
@@ -45,6 +45,11 @@ class Pos(QWidget):
     def __init__(self, x, y, *args, **kwargs):
         super(Pos, self).__init__(*args, **kwargs)
 
+        self.is_revealed = False
+        self.adjacent_n = 0
+        self.is_mine = False
+        self.is_start = False
+        self.is_flagged = False
         self.setFixedSize(QSize(20, 20))
 
         self.x = x
@@ -130,7 +135,7 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
 
-        self.b_size, self.n_mines = LEVELS[1]
+        self.board_size, self.number_of_bugs = LEVELS[1]
 
         w = QWidget()
         hb = QHBoxLayout()
@@ -151,7 +156,7 @@ class MainWindow(QMainWindow):
         self._timer.timeout.connect(self.update_timer)
         self._timer.start(1000)  # 1 second timer
 
-        self.mines.setText("%03d" % self.n_mines)
+        self.mines.setText("%03d" % self.number_of_bugs)
         self.clock.setText("000")
 
         self.button = QPushButton()
@@ -196,8 +201,8 @@ class MainWindow(QMainWindow):
 
     def init_map(self):
         # Add positions to the map
-        for x in range(0, self.b_size):
-            for y in range(0, self.b_size):
+        for x in range(0, self.board_size):
+            for y in range(0, self.board_size):
                 w = Pos(x, y)
                 self.grid.addWidget(w, y, x)
                 # Connect signal to handle expansion.
@@ -207,56 +212,56 @@ class MainWindow(QMainWindow):
 
     def reset_map(self):
         # Clear all mine positions
-        for x in range(0, self.b_size):
-            for y in range(0, self.b_size):
-                w = self.grid.itemAtPosition(y, x).widget()
-                w.reset()
+        for x in range(0, self.board_size):
+            for y in range(0, self.board_size):
+                widget = self.grid.itemAtPosition(y, x).widget()
+                widget.reset()
 
         # Add mines to the positions
         positions = []
-        while len(positions) < self.n_mines:
-            x, y = random.randint(0, self.b_size - 1), random.randint(
-                0, self.b_size - 1
+        while len(positions) < self.number_of_bugs:
+            x, y = random.randint(0, self.board_size - 1), random.randint(
+                0, self.board_size - 1
             )
             if (x, y) not in positions:
-                w = self.grid.itemAtPosition(y, x).widget()
-                w.is_mine = True
+                widget = self.grid.itemAtPosition(y, x).widget()
+                widget.is_mine = True
                 positions.append((x, y))
 
         def get_adjacency_n(x, y):
-            positions = self.get_surrounding(x, y)
-            n_mines = sum(1 if w.is_mine else 0 for w in positions)
+            surrounding_positions = self.get_surrounding(x, y)
+            n_mines = sum(1 if w.is_mine else 0 for w in surrounding_positions)
 
             return n_mines
 
         # Add adjacencies to the positions
-        for x in range(0, self.b_size):
-            for y in range(0, self.b_size):
-                w = self.grid.itemAtPosition(y, x).widget()
-                w.adjacent_n = get_adjacency_n(x, y)
+        for x in range(0, self.board_size):
+            for y in range(0, self.board_size):
+                widget = self.grid.itemAtPosition(y, x).widget()
+                widget.adjacent_n = get_adjacency_n(x, y)
 
         # Place starting marker
         while True:
-            x, y = random.randint(0, self.b_size - 1), random.randint(
-                0, self.b_size - 1
+            x, y = random.randint(0, self.board_size - 1), random.randint(
+                0, self.board_size - 1
             )
-            w = self.grid.itemAtPosition(y, x).widget()
+
             # We don't want to start on a mine.
             if (x, y) not in positions:
-                w = self.grid.itemAtPosition(y, x).widget()
-                w.is_start = True
+                widget = self.grid.itemAtPosition(y, x).widget()
+                widget.is_start = True
 
                 # Reveal all positions around this, if they are not mines either.
-                for w in self.get_surrounding(x, y):
-                    if not w.is_mine:
-                        w.click()
+                for widget in self.get_surrounding(x, y):
+                    if not widget.is_mine:
+                        widget.click()
                 break
 
     def get_surrounding(self, x, y):
         positions = []
 
-        for xi in range(max(0, x - 1), min(x + 2, self.b_size)):
-            for yi in range(max(0, y - 1), min(y + 2, self.b_size)):
+        for xi in range(max(0, x - 1), min(x + 2, self.board_size)):
+            for yi in range(max(0, y - 1), min(y + 2, self.board_size)):
                 positions.append(self.grid.itemAtPosition(yi, xi).widget())
 
         return positions
@@ -271,14 +276,14 @@ class MainWindow(QMainWindow):
             self.reset_map()
 
     def reveal_map(self):
-        for x in range(0, self.b_size):
-            for y in range(0, self.b_size):
+        for x in range(0, self.board_size):
+            for y in range(0, self.board_size):
                 w = self.grid.itemAtPosition(y, x).widget()
                 w.reveal()
 
     def expand_reveal(self, x, y):
-        for xi in range(max(0, x - 1), min(x + 2, self.b_size)):
-            for yi in range(max(0, y - 1), min(y + 2, self.b_size)):
+        for xi in range(max(0, x - 1), min(x + 2, self.board_size)):
+            for yi in range(max(0, y - 1), min(y + 2, self.board_size)):
                 w = self.grid.itemAtPosition(yi, xi).widget()
                 if not w.is_mine:
                     w.click()
