@@ -25,3 +25,4 @@ def test_get_surrounding():
     assert len(window.get_surrounding(0, 0)) == 4  # it is a corner
     assert len(window.get_surrounding_old(0, 0)) == 4  # it is a corner
     assert len(window.get_surrounding(0, 0)) == 4  # it is a corner
+    assert len(window.get_surrounding_2d(0, 0)) == 4  # it is a corner

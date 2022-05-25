@@ -1,3 +1,4 @@
+import itertools
 import random
 import time
 
@@ -262,6 +263,11 @@ class MainWindow(QMainWindow):
     def get_surrounding(self, x, y):
         return [self.grid.itemAtPosition(yi, xi).widget() for xi in self.get_surrounding_range(x) for yi in
                 self.get_surrounding_range(y)]
+
+    @measure
+    def get_surrounding_2d(self, x, y):
+        return list(map(lambda pos: self.grid.itemAtPosition(pos[1], pos[0]).widget(),
+                        itertools.product(self.get_surrounding_range(x), self.get_surrounding_range(y))))
 
     @measure
     def get_surrounding_old(self, x, y):
