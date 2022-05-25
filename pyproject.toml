@@ -9,9 +9,9 @@ python = "^3.10"
 PyQt5 = ">=5.6"
 sip = "^6.6.1"
 pre-commit = "^2.19.0"
+pytest = "^7.1.2"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
