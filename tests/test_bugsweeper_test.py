@@ -26,4 +26,3 @@ def test_get_surrounding():
     board_mock.get_surrounding = MainWindow.get_surrounding
 
     assert len(board_mock.get_surrounding(board_mock, 0, 0)) == 4  # it is a corner
-    assert False
