@@ -1,9 +1,10 @@
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
-
 import random
 import time
+
+from PyQt5.QtCore import pyqtSignal, QSize, Qt, QTimer
+from PyQt5.QtGui import QImage, QColor, QPainter, QPalette, QBrush, QPen, QPixmap, QIcon
+from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QGridLayout, \
+    QApplication
 
 IMG_BOMB = QImage("./images/bug.png")
 IMG_FLAG = QImage("./images/flag.png")
@@ -11,21 +12,17 @@ IMG_START = QImage("./images/rocket.png")
 IMG_CLOCK = QImage("./images/clock-select.png")
 
 NUM_COLORS = {
-    1: QColor('#f44336'),
-    2: QColor('#9C27B0'),
-    3: QColor('#3F51B5'),
-    4: QColor('#03A9F4'),
-    5: QColor('#00BCD4'),
-    6: QColor('#4CAF50'),
-    7: QColor('#E91E63'),
-    8: QColor('#FF9800')
+    1: QColor("#f44336"),
+    2: QColor("#9C27B0"),
+    3: QColor("#3F51B5"),
+    4: QColor("#03A9F4"),
+    5: QColor("#00BCD4"),
+    6: QColor("#4CAF50"),
+    7: QColor("#E91E63"),
+    8: QColor("#FF9800"),
 }
 
-LEVELS = [
-    (8, 10),
-    (16, 40),
-    (24, 99)
-]
+LEVELS = [(8, 10), (16, 40), (24, 99)]
 
 STATUS_READY = 0
 STATUS_PLAYING = 1
@@ -119,10 +116,10 @@ class Pos(QWidget):
 
     def mouseReleaseEvent(self, e):
 
-        if (e.button() == Qt.RightButton and not self.is_revealed):
+        if e.button() == Qt.RightButton and not self.is_revealed:
             self.flag()
 
-        elif (e.button() == Qt.LeftButton):
+        elif e.button() == Qt.LeftButton:
             self.click()
 
             if self.is_mine:
@@ -218,7 +215,9 @@ class MainWindow(QMainWindow):
         # Add mines to the positions
         positions = []
         while len(positions) < self.n_mines:
-            x, y = random.randint(0, self.b_size - 1), random.randint(0, self.b_size - 1)
+            x, y = random.randint(0, self.b_size - 1), random.randint(
+                0, self.b_size - 1
+            )
             if (x, y) not in positions:
                 w = self.grid.itemAtPosition(y, x).widget()
                 w.is_mine = True
@@ -238,7 +237,9 @@ class MainWindow(QMainWindow):
 
         # Place starting marker
         while True:
-            x, y = random.randint(0, self.b_size - 1), random.randint(0, self.b_size - 1)
+            x, y = random.randint(0, self.b_size - 1), random.randint(
+                0, self.b_size - 1
+            )
             w = self.grid.itemAtPosition(y, x).widget()
             # We don't want to start on a mine.
             if (x, y) not in positions:
@@ -303,7 +304,7 @@ class MainWindow(QMainWindow):
         self.update_status(STATUS_FAILED)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication([])
     window = MainWindow()
     app.exec_()
