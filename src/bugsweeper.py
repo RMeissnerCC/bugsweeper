@@ -50,7 +50,7 @@ class Pos(QWidget):
         super(Pos, self).__init__(*args, **kwargs)
 
         self.is_revealed = False
-        self.adjacent_n = 0
+        self.adjacent_bugs = 0
         self.is_mine = False
         self.is_start = False
         self.is_flagged = False
@@ -62,7 +62,7 @@ class Pos(QWidget):
     def reset(self):
         self.is_start = False
         self.is_mine = False
-        self.adjacent_n = 0
+        self.adjacent_bugs = 0
 
         self.is_revealed = False
         self.is_flagged = False
@@ -94,13 +94,13 @@ class Pos(QWidget):
             elif self.is_mine:
                 p.drawPixmap(r, QPixmap(IMG_BOMB))
 
-            elif self.adjacent_n > 0:
-                pen = QPen(NUM_COLORS[self.adjacent_n])
+            elif self.adjacent_bugs > 0:
+                pen = QPen(NUM_COLORS[self.adjacent_bugs])
                 p.setPen(pen)
                 f = p.font()
                 f.setBold(True)
                 p.setFont(f)
-                p.drawText(r, Qt.AlignHCenter | Qt.AlignVCenter, str(self.adjacent_n))
+                p.drawText(r, Qt.AlignHCenter | Qt.AlignVCenter, str(self.adjacent_bugs))
 
         elif self.is_flagged:
             p.drawPixmap(r, QPixmap(IMG_FLAG))
@@ -116,9 +116,9 @@ class Pos(QWidget):
         self.update()
 
     def click(self):
-        if not self.is_revealed:
+        if not self.is_revealed and not self.is_flagged:
             self.reveal()
-            if self.adjacent_n == 0:
+            if self.adjacent_bugs == 0:
                 self.expandable.emit(self.x, self.y)
 
         self.clicked.emit()
@@ -172,7 +172,7 @@ class MainWindow(QMainWindow):
         self.button.setIconSize(QSize(32, 32))
         self.button.setIcon(QIcon(f"{image_folder}/smiley.png"))
         self.button.setFlat(True)
-        self.button.pressed.connect(self.button_pressed)
+        self.button.pressed.connect(self.restart_button_pressed)
         l = QLabel()
         l.setPixmap(QPixmap.fromImage(IMG_BOMB))
         l.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -235,8 +235,7 @@ class MainWindow(QMainWindow):
         for x in range(0, self.board_size):
             for y in range(0, self.board_size):
                 widget = self.grid.itemAtPosition(y, x).widget()
-                widget.adjacent_n = self.get_adjacency_n(x, y)
-
+                widget.adjacent_bugs = self.get_adjacency_n(x, y)
         self.markers_placed(positions)
 
     def markers_placed(self, positions):
@@ -259,12 +258,11 @@ class MainWindow(QMainWindow):
     def get_surrounding_range(self, x: int):
         return range(max(0, x - 1), min(x + 2, self.board_size))
 
-    @measure
     def get_surrounding(self, x, y):
         return [self.grid.itemAtPosition(yi, xi).widget() for xi, yi in
                 itertools.product(self.get_surrounding_range(x), self.get_surrounding_range(y))]
 
-    def button_pressed(self):
+    def restart_button_pressed(self):
         if self.status == STATUS_PLAYING:
             self.update_status(STATUS_FAILED)
             self.reveal_map()
