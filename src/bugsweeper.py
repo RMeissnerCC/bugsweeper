@@ -264,21 +264,6 @@ class MainWindow(QMainWindow):
         return [self.grid.itemAtPosition(yi, xi).widget() for xi, yi in
                 itertools.product(self.get_surrounding_range(x), self.get_surrounding_range(y))]
 
-    @measure
-    def get_surrounding_2d(self, x, y):
-        return list(map(lambda pos: self.grid.itemAtPosition(pos[1], pos[0]).widget(),
-                        itertools.product(self.get_surrounding_range(x), self.get_surrounding_range(y))))
-
-    @measure
-    def get_surrounding_old(self, x, y):
-        positions = []
-
-        for xi in range(max(0, x - 1), min(x + 2, self.board_size)):
-            for yi in range(max(0, y - 1), min(y + 2, self.board_size)):
-                positions.append(self.grid.itemAtPosition(yi, xi).widget())
-
-        return positions
-
     def button_pressed(self):
         if self.status == STATUS_PLAYING:
             self.update_status(STATUS_FAILED)

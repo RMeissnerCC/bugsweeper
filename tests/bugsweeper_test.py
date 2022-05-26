@@ -1,11 +1,13 @@
 from unittest import mock
 
+import pytest
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget
 
 from src.bugsweeper import MainWindow
 
 
-def test_get_surrounding():
+@pytest.mark.parametrize("x,y, expected", [(0, 0, 4), (4, 4, 9), (15, 15, 4), (0, 4, 6)])
+def test_get_surrounding(x, y, expected):
     # Rather tedious right now
     with mock.patch("src.bugsweeper.MainWindow.update_status") as mocked_update_status:
         with mock.patch("src.bugsweeper.MainWindow.reset_map") as mocked_reset_map:
@@ -21,7 +23,4 @@ def test_get_surrounding():
                 window.create_grid(vb, w)
                 window.init_map()
 
-    assert len(window.get_surrounding(0, 0)) == 4  # it is a corner
-    assert len(window.get_surrounding_old(0, 0)) == 4  # it is a corner
-    assert len(window.get_surrounding(0, 0)) == 4  # it is a corner
-    assert len(window.get_surrounding_2d(0, 0)) == 4  # it is a corner
+    assert len(window.get_surrounding(y, x)) == expected
