@@ -1,6 +1,8 @@
+from dataclasses import dataclass
 import itertools
 import random
 import time
+from enum import Enum
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage, QColor, QPainter, QPalette, QBrush, QPen, QPixmap, QIcon
@@ -39,6 +41,30 @@ STATUS_ICONS = {
     STATUS_FAILED: f"{image_folder}/cross.png",
     STATUS_SUCCESS: f"{image_folder}/smiley-lol.png",
 }
+
+
+class FieldState(Enum):
+    Flagged = 0
+    Mine = 1
+    Revealed = 2
+    Start = 3
+    Default = 99
+
+
+@dataclass
+class Field:
+    x: str
+    y: str
+    adjacent_mines: int
+    state: FieldState
+    qt_widget: QWidget
+
+
+def field_resetted(field: Field):
+    field.state = FieldState.Default
+    field.adjacent_mines = 0
+    field.qt_widget.update()
+    return field
 
 
 class Pos(QWidget):
